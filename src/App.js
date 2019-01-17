@@ -1,55 +1,79 @@
-import React from "react";
-import { Route, Link } from 'react-router-dom'
-import * as BooksAPI from './BooksAPI'
-import "./App.css";
+import React, { Component } from 'react';
+import { Route } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-import Search from "./components/Search";
+import './App.css';
+
+import * as BooksAPI from './BooksAPI';
+
+import Search from './components/Search';
 import BookList from './components/BookList'
 
-class BooksApp extends React.Component {
+import { Animated } from "react-animated-css";
+
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+library.add(faBook);
+
+class App extends Component {
+
   state = {
     books: []
   };
 
-  componentDidMount(){
-    BooksAPI.getAll().then(books => this.setState({books}))
+  componentDidMount() {
+    BooksAPI.getAll().then(filteredBooks =>
+      this.setState({
+        books: filteredBooks
+      })
+    );
   }
 
-  changeShelf = (changedBook, shelf) => {
-    BooksAPI.update(changedBook, shelf).then(response => {
-      changedBook.shelf = shelf
-      this.setState(prevState => ({
-        books: prevState.books
-          .filter(book => book.id !== changedBook.id)
-          .concat(changedBook)
-      }))
-    })
-  }
+  moveBook = (book, shelf) => {
+    if (!this.state.books) {
+      BooksAPI.update(book, shelf)
+        .then(() => (shelf !== 'none' ? this.context.router.history.push('/') : null))
+        .catch(() => alert('Something went wrong! Please try again!'));
+    } else {
+      BooksAPI.update(book, shelf).then(() => {
+        book.shelf = shelf;
+        this.setState(state => ({
+          books: state.books.filter(object => object.id !== book.id).concat([book])
+        }));
+      });
+    }
+  };
 
   render() {
-
-    const { books } = this.state
-
     return (
       <div className="app">
-          <Route path='/search' render={({history}) => (
-            <Search books={books} changeShelf={this.changeShelf} />
-          )} />
+        <Route
+          path="/search"
+          render={() => <Search dataBook={this.state.books} moveBook={this.moveBook.bind(this)} />}
+        />
+        <Route
+          exact
+          path="/"
+          render={() =>
+            <div className="list-books">
+              <div className="list-books-title">
+              <Animated animationIn="slideInDown" isVisible={true}>
+                <h1><FontAwesomeIcon icon="book" /> MyReads</h1>
+              </Animated>
+              </div>
 
-          <Route exact path='/' render={() => (
-            <div className='list-books'>
-              <div className='list-books-title'>
-                <h1>MyReads</h1>
+              <BookList />
+
+              <div className="open-search">
+                <Link to="/search"><button>Add a book</button></Link>
               </div>
-              <BookList books={books} changeShelf={this.changeShelf} />
-              <div className='open-search'>
-                <Link to='/search'>Search</Link>
-              </div>
-            </div>
-          )} />
+            </div>}
+        />
       </div>
     );
   }
 }
 
-export default BooksApp;
+export default App;
