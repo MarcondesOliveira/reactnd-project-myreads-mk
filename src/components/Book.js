@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 
 import PropTypes from 'prop-types';
 
-class Book extends Component {
+class Book extends PureComponent {
   static propTypes = {
     book: PropTypes.object.isRequired,
     moveBook: PropTypes.func.isRequired
@@ -13,7 +13,7 @@ class Book extends Component {
   };
 
   render() {
-    let { book, moveBook } = this.props;
+    const { book, moveBook } = this.props
 
     return (
       <div>
@@ -24,14 +24,12 @@ class Book extends Component {
               style={{
                 width: 128,
                 height: 193,
-                backgroundImage: `url(${book.imageLinks.thumbnail})`
+                backgroundImage: `url(${book.imageLinks ? book.imageLinks.thumbnail : null})`
               }}
             />
             <div className="book-shelf-changer">
-              <select value={book.shelf} onChange={event => moveBook(book, event.target.value)}>
-                <option value="none" disabled>
-                  Move to...
-                </option>
+              <select value={book.shelf ? book.shelf : 'none'} onChange={event => moveBook(book, event.target.value)}>
+                <option disabled>Move to...</option>
                 <option value="currentlyReading">Currently Reading</option>
                 <option value="wantToRead">Want to Read</option>
                 <option value="read">Read</option>

@@ -13,28 +13,10 @@ class BookList extends Component {
     books: []
   };
 
-  componentDidMount() {
-    BooksAPI.getAll().then(filteredBooks =>
-      this.setState({
-        books: filteredBooks
-      })
-    );
-  }
-
-  moveBook = (book, shelf) => {
-    if (!this.state.books) {
-      BooksAPI.update(book, shelf)
-        .then(() => (shelf !== 'none' ? this.context.router.history.push('/') : null))
-        .catch(() => alert('Something went wrong! Please try again!'));
-    } else {
-      BooksAPI.update(book, shelf).then(() => {
-        book.shelf = shelf;
-        this.setState(state => ({
-          books: state.books.filter(object => object.id !== book.id).concat([book])
-        }));
-      });
-    }
-  };
+  async componentDidMount() {
+    const books = await BooksAPI.getAll()
+    this.setState({ books })
+  }  
 
   render() {
     return (
@@ -45,7 +27,7 @@ class BookList extends Component {
               <Animated animationIn="bounceInLeft" animationOut="fadeOut" isVisible={true}>
               <BookShelf
                 title="Currently to Reading"
-                moveBook={this.moveBook.bind(this)}
+                moveBook={this.moveBook}
                 shelf={`currentlyReading`}
                 dataBook={this.state.books}
               />
@@ -53,7 +35,7 @@ class BookList extends Component {
               <Animated animationIn="bounceInLeft" animationOut="fadeOut" isVisible={true}>
               <BookShelf
                 title="Want to read"
-                moveBook={this.moveBook.bind(this)}
+                moveBook={this.moveBook}
                 shelf={`wantToRead`}
                 dataBook={this.state.books}
               />
@@ -61,7 +43,7 @@ class BookList extends Component {
               <Animated animationIn="bounceInLeft" animationOut="fadeOut" isVisible={true}>
               <BookShelf
                 title="Read"
-                moveBook={this.moveBook.bind(this)}
+                moveBook={this.moveBook}
                 shelf={`read`}
                 dataBook={this.state.books}
               />

@@ -23,13 +23,10 @@ class App extends Component {
     books: []
   };
 
-  componentDidMount() {
-    BooksAPI.getAll().then(filteredBooks =>
-      this.setState({
-        books: filteredBooks
-      })
-    );
-  }
+  async componentDidMount() {
+    const books = await BooksAPI.getAll()
+    this.setState({ books })
+  }  
 
   moveBook = (book, shelf) => {
     if (!this.state.books) {

@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 
 import * as BooksAPI from '../BooksAPI';
 
+import { DebounceInput } from 'react-debounce-input';
+
+
 import Book from './Book';
 
 class Search extends Component {
@@ -32,8 +35,8 @@ class Search extends Component {
       return books.error
         ? <div>No results found</div>
         : books.map((book) => {
-            return <Book moveBook={moveBook} key={book.id} book={book} />;
-          });
+          return <Book moveBook={moveBook} key={book.id} book={book} />;
+        });
     }
   }
 
@@ -45,7 +48,7 @@ class Search extends Component {
             Close
           </Link>
           <div className="search-books-input-wrapper">
-            <input
+            <DebounceInput minLength={2} debounceTimeout={300}
               type="text"
               placeholder="Search by title or author"
               value={this.state.query}
